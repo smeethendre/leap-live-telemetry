@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base:        #050810;
+  --bg-panel:       #0b1120;
+  --bg-card:        #0e1829;
+  --bg-card-hover:  #111f35;
+  --border:         #1a2f50;
+  --border-bright:  #1e3d6e;
+  --accent:         #00d4ff;
+  --accent-dim:     rgba(0, 212, 255, 0.12);
+  --accent-glow:    rgba(0, 212, 255, 0.35);
+  --green:          #00ff9d;
+  --green-dim:      rgba(0, 255, 157, 0.12);
+  --amber:          #ffb400;
+  --amber-dim:      rgba(255, 180, 0, 0.12);
+  --red:            #ff4466;
+  --red-dim:        rgba(255, 68, 102, 0.12);
+  --purple:         #a78bfa;
+  --text-primary:   #e8f4fd;
+  --text-secondary: #7fa8c9;
+  --text-muted:     #3d6080;
+  --font-display:   'Orbitron', monospace;
+  --font-mono:      'Space Mono', monospace;
+  --font-body:      'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Grid background */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Panels */
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.4;
+}
+
+/* Corner decorations */
+.panel-corner::before,
+.panel-corner::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  border-color: var(--accent);
+  border-style: solid;
+  opacity: 0.7;
+}
+.panel-corner::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.panel-corner::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+/* Status badge */
+.status-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--green);
+  letter-spacing: 0.1em;
+}
+.status-live::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* Monospace values */
+.mono { font-family: var(--font-mono); }
+.display { font-family: var(--font-display); }
+
+/* Glow text */
+.glow-cyan  { text-shadow: 0 0 20px var(--accent-glow); color: var(--accent); }
+.glow-green { text-shadow: 0 0 20px rgba(0,255,157,0.4); color: var(--green); }
+.glow-amber { text-shadow: 0 0 20px rgba(255,180,0,0.4); color: var(--amber); }
+.glow-red   { text-shadow: 0 0 20px rgba(255,68,102,0.4); color: var(--red); }
+
+/* Animations */
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in { animation: fadeInUp 0.4s ease forwards; }
+
+/* Recharts overrides */
+.recharts-cartesian-grid line { stroke: var(--border) !important; }
+.recharts-text { fill: var(--text-muted) !important; font-family: var(--font-mono) !important; font-size: 10px !important; }
+.recharts-tooltip-wrapper { z-index: 100; }
+
+/* Leaflet overrides */
+.leaflet-container { background: #040a14 !important; }
+.leaflet-tile { filter: brightness(0.7) saturate(0.8) hue-rotate(190deg) !important; }
