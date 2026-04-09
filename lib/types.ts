@@ -1,26 +1,30 @@
 export interface TelemetryPacket {
-  HAB_ID: string;
-  MISSION_TIME: string;
-  PACKET_NO: number;
-  TEMPERATURE: number;
-  PRESSURE: number;
-  HUMIDITY: number;
-  UV_INDEX: number;
-  MAGNETIC_FIELD: number;
-  LATITUDE: number;
-  LONGITUDE: number;
-  ALTITUDE: number;
-  TIMESTAMP: string;
-  BATTERY_PERCENT: number;
-  GYRO_X: number;
-  GYRO_Y: number;
-  GYRO_Z: number;
-  ACCEL_X: number;
-  ACCEL_Y: number;
-  ACCEL_Z: number;
-  CAMERA_STATUS: string;
-  STATUS_FLAG: string;
-  RSSI: number;
+  hab_id: string;
+  mission_time: string;
+  packet_no: number;
+  temperature: number;
+  pressure: number;
+  humidity: number;
+  uv_index: number;
+  magnetic_field: number;
+  latitude: number;
+  longitude: number;
+  altitude: number;
+  timestamp: string;
+  battery_percent: number;
+  gyro_x: number;
+  gyro_y: number;
+  gyro_z: number;
+  accel_x: number;
+  accel_y: number;
+  accel_z: number;
+  camera_status: string;
+  status_flag: string;
+  rssi: number;
+  // Add these short aliases to prevent map crashes
+  lat?: number;
+  lng?: number;
+  alt?: number;
 }
 
 export interface TelemetryRow extends TelemetryPacket {

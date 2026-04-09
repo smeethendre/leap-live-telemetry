@@ -12,31 +12,41 @@ export function useTelemetry() {
   const historyRef = useRef<TelemetryPacket[]>([]);
 
   useEffect(() => {
-    // Listen to the last 1 packet for live "latest" data
-    const latestRef = query(
-      ref(db, 'telemetry'),
-      orderByKey(),
-      limitToLast(1)
-    );
+    const latestRef = query(ref(db, 'telemetry'), orderByKey(), limitToLast(1));
 
     const unsubLatest = onValue(latestRef, (snapshot) => {
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        const key = Object.keys(data)[0];
-        const packet: TelemetryPacket = data[key];
-        setLatest(packet);
+        const rawData = snapshot.val();
+        const key = Object.keys(rawData)[0];
+        const rawPacket = rawData[key];
+
+        // 🛠️ THE FIX: Force all keys to LOWERCASE
+        const normalized: any = {};
+        Object.keys(rawPacket).forEach(k => {
+          normalized[k.toLowerCase()] = rawPacket[k];
+        });
+
+        // Add short aliases for the map and gauges
+        const finalPacket: TelemetryPacket = {
+          ...normalized,
+          lat: normalized.latitude ?? 0,
+          lng: normalized.longitude ?? 0,
+          alt: normalized.altitude ?? 0,
+          packet_no: normalized.packet_no ?? 0,
+        };
+
+        // DEBUG: Uncomment the line below to see exactly what is arriving
+        // console.log("📡 Normalized Packet:", finalPacket);
+
+        setLatest(finalPacket);
         setConnected(true);
 
-        // Append to rolling history
         historyRef.current = [
           ...historyRef.current.slice(-(HISTORY_SIZE - 1)),
-          packet,
+          finalPacket,
         ];
         setHistory([...historyRef.current]);
       }
-    }, (error) => {
-      console.error('Firebase listener error:', error);
-      setConnected(false);
     });
 
     return () => off(latestRef, 'value', unsubLatest);

@@ -17,14 +17,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: 'var(--bg-card)', border: '1px solid var(--border-bright)',
-      padding: '10px 14px', borderRadius: 2, fontFamily: 'var(--font-mono)', fontSize: 11,
+      background: 'rgba(13, 17, 23, 0.9)', // Matching the space theme
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      padding: '10px 14px', borderRadius: 4, fontFamily: 'var(--font-mono)', fontSize: 11,
+      backdropFilter: 'blur(4px)',
     }}>
       <div style={{ color: 'var(--text-muted)', marginBottom: 6, fontSize: 10 }}>PKT #{label}</div>
       {payload.map((p: any) => (
-        <div key={p.dataKey} style={{ color: p.color, display: 'flex', gap: 8, justifyContent: 'space-between' }}>
+        <div key={p.dataKey} style={{ color: p.color, display: 'flex', gap: 12, justifyContent: 'space-between' }}>
           <span>{p.name}</span>
-          <span>{typeof p.value === 'number' ? p.value.toFixed(2) : p.value}</span>
+          <span style={{ fontWeight: 'bold' }}>
+            {typeof p.value === 'number' ? p.value.toFixed(2) : p.value}
+          </span>
         </div>
       ))}
     </div>
@@ -39,35 +43,37 @@ export default function TelemetryChart({ data, fields, title, yUnit, height = 18
       </div>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
           <XAxis
-            dataKey="PACKET_NO"
+            // CHANGED: lowercase to match your database columns
+            dataKey="packet_no" 
             stroke="none"
-            tick={{ fill: '#3d6080', fontSize: 9, fontFamily: "'Space Mono', monospace" }}
+            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 9, fontFamily: "var(--font-mono)" }}
           />
           <YAxis
             stroke="none"
-            tick={{ fill: '#3d6080', fontSize: 9, fontFamily: "'Space Mono', monospace" }}
+            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 9, fontFamily: "var(--font-mono)" }}
             unit={yUnit}
             width={42}
+            domain={['auto', 'auto']} // This makes the chart zoom into the data range
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} isAnimationActive={false} />
           {fields.length > 1 && (
             <Legend
-              wrapperStyle={{ fontSize: 10, fontFamily: "'Space Mono', monospace", color: 'var(--text-muted)' }}
+              wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)", color: 'var(--text-muted)', paddingTop: '10px' }}
             />
           )}
           {fields.map((f) => (
             <Line
               key={f.key as string}
               type="monotone"
-              dataKey={f.key as string}
+              dataKey={f.key as string} // This will work as long as your fields list uses lowercase keys
               name={f.label}
               stroke={f.color}
-              strokeWidth={1.5}
+              strokeWidth={2}
               dot={false}
-              activeDot={{ r: 3, fill: f.color }}
-              isAnimationActive={false}
+              activeDot={{ r: 4, fill: f.color, stroke: '#000', strokeWidth: 2 }}
+              isAnimationActive={false} // Improves performance for real-time data
             />
           ))}
         </LineChart>

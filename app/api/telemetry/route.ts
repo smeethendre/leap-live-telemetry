@@ -1,29 +1,17 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
-export async function GET(request: Request) {
-  try {
-    const result = await query('SELECT * FROM telemetry ORDER BY timestamp DESC LIMIT 100');
-    return NextResponse.json({ data: result.rows });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // 1. NORMALIZE KEYS (This fixes the Uppercase/Lowercase problem)
-    // We cast this 'as any' to stop the red squiggly lines in VS Code
+    // 1. Standardize keys to lowercase
     const p = Object.keys(body).reduce((acc, key) => {
       acc[key.toLowerCase()] = body[key];
       return acc;
     }, {} as any);
 
-    console.log(`🚀 AkashDhwani: Processing Packet #${p.packet_no}`);
-
-    // 2. SQL QUERY
+    // 2. The SQL Insert
     const sql = `
       INSERT INTO telemetry (
         hab_id, mission_time, packet_no, temperature, pressure, humidity,
@@ -33,19 +21,20 @@ export async function POST(request: Request) {
       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
     `;
 
-    // 3. VALUES ARRAY (22 total values)
     const values = [
-      p.hab_id, p.mission_time, p.packet_no, p.temperature, p.pressure, p.humidity,
-      p.uv_index, p.magnetic_field, p.latitude, p.longitude, p.altitude,
-      p.battery_percent, p.gyro_x, p.gyro_y, p.gyro_z, p.accel_x, p.accel_y, p.accel_z,
-      p.camera_status, p.status_flag, p.rssi, p.timestamp
+      p.hab_id || 'N/A', p.mission_time || '00:00:00', p.packet_no || 0,
+      p.temperature || 0, p.pressure || 0, p.humidity || 0,
+      p.uv_index || 0, p.magnetic_field || 0, p.latitude || 0, p.longitude || 0, p.altitude || 0,
+      p.battery_percent || 0, p.gyro_x || 0, p.gyro_y || 0, p.gyro_z || 0,
+      p.accel_x || 0, p.accel_y || 0, p.accel_z || 0,
+      p.camera_status || 'OFF', p.status_flag || 'OK', p.rssi || 0, p.timestamp || new Date().toISOString()
     ];
 
     await query(sql, values);
     return NextResponse.json({ status: "success" });
 
   } catch (err: any) {
-    console.error('❌ Database Insert Error:', err.message);
+    console.error('❌ DB Error:', err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
