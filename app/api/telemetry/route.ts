@@ -2,6 +2,15 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
 export async function POST(request: Request) {
+  // 🔐 THE HANDSHAKE
+  const authHeader = request.headers.get('x-api-key');
+  const secretKey = process.env.SIMULATOR_SECRET_KEY;
+
+  if (!authHeader || authHeader !== secretKey) {
+    console.error('🛑 Unauthorized Handshake Attempt');
+    return NextResponse.json({ error: 'Unauthorized: Handshake Failed' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
 
