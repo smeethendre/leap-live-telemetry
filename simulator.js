@@ -1,9 +1,4 @@
-/**
- * AKASHDHWANI MISSION SIMULATOR (Secure Version)
- * Purpose: Streams live telemetry to Firebase and logs history to PostgreSQL.
- */
 
-// 1. Load environment variables from .env.local
 require('dotenv').config({ path: '.env.local' }); 
 
 const axios = require('axios');
@@ -96,7 +91,7 @@ async function sendPacket() {
 
 console.log("🚀 HAB-01 Simulator Active...");
 console.log(`📡 Handshake Key Loaded from Environment.`);
-console.log("-----------------------------------------");
 
-// Data stream interval (1 seconds)
+
+
 setInterval(sendPacket, 1000);
